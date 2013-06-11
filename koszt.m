@@ -24,5 +24,5 @@ global restmu K1 K2 rM VM mr
     end
 
 out = - xT(5) + K1 * T + K2 * (k1 + k2 + k3 + k4);
-[xT(5) T k1 k2 k3 k4]
+%[xT(5) T k1 k2 k3 k4]
 end

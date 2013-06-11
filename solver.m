@@ -14,12 +14,14 @@ iter = cn(end);
 
 x = zeros(iter,length(x0));
 t = zeros(iter, 1);
-grad = zeros(length(dtau),2);
+grad = zeros(2*length(dtau),1);
+us = zeros(2,1);
 
 x(1,:) = x0;
 
 for j = 1:length(dtau)
-    us = u(j,:);    
+    us(1) = u(j);
+    us(2) = u(length(dtau) + j);   
     f = @(x,u) rhs(x,u);
     for i = cn(j):cn(j+1)-1
         dx1 = f(x(i,:), us);
@@ -56,7 +58,8 @@ xBack = zeros(iter, 2 * length(xT) + 2);
 xBack(iter,:) = [xT psiT 0 0];
 
 for j = length(dtau):-1:1
-    us = u(j,:);    
+    us(1) = u(j);
+    us(2) = u(length(dtau) + j);       
     g = @(x,u) rhsBack(x,u);
     for i = (cn(j+1)-1):-1:cn(j)
         dx1 = g(xBack(i+1,:), us);
@@ -65,10 +68,11 @@ for j = length(dtau):-1:1
         dx4 = g(xBack(i+1,:) - h(j) * dx3, us);
         xBack(i,:) = xBack(i+1,:) - h3(j) * (dx2 + dx3) - h6(j) * (dx1 + dx4);
     end
-    grad(j,:) = xBack(i,11:12);
+    grad(j,1) = xBack(i,11);
+    grad(length(dtau)+j,1) = xBack(i,12);
     xBack(i,11:12) = [0 0]; % gamma(t_i+1) = 0
 end
 
-psi = xBack(:,length(xT) + 1:2 * length(xT));
-%psi = xBack;
+%psi = xBack(:,length(xT) + 1:2 * length(xT));
+psi = xBack;
 end

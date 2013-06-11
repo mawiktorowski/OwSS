@@ -4,8 +4,8 @@ format long;
 
 param;
 %init = x0(LEO, 270, 0, 0, m);
-%init = x0(LEO, 270, 0, 0, m);
-init = [1 1 1 1 1];
+init = x0(LEO, 270, 0, 0, m);
+%init = [1 1 1 1 1];
 ep=1e-6;
 out = zeros(1,5);
 

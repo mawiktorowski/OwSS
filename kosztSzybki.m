@@ -9,11 +9,14 @@ h3 = h/3;
 h6 = h/6;
 cn = cumsum([1 n]);
 
+us = zeros(2,1);
+
 x = x0;
 t = 0;
 
 for j = 1:length(dtau)
-    us = u(j,:);
+    us(1) = u(j);
+    us(2) = u(length(dtau) + j);      
     f = @(x,u,t) rhs(x,u);
     for i = cn(j):cn(j+1)-1
         dx1 = f(x, us);
