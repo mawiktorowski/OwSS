@@ -3,6 +3,7 @@ global mr
 global D mu restmu
 global aE aM LEO LMO rM VM
 global C1 C2
+global ep0 ep1 ep2 epK0 epK1 MAX_ITER
 
 % tymczasowe !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 global dV
@@ -44,3 +45,11 @@ C2 = 0.1 / 3000;
 % parametry modelu (rakieta)
 mr = 10000 / 1000; % masa rakiety bez paliwa
 m = 20000;
+
+% parametry algorytmu BFGS
+ep0 = 1e-8;     % minimalna norma gradientu
+ep1 = 0.5e-16;  % odnowa algorytmu
+ep2 = 0.5;   	% odnowa algorytmu
+epK0 = 1e-16; 	% dokladnosc kontrakcji - d == kierunek najszybszego spadku
+epK1 = 1e-6;    % dokladnosc kontrakcji - d != kierunek najszybszego spadku
+MAX_ITER = 20;

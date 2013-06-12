@@ -1,6 +1,8 @@
 close all;
 clear all;
 
+%format long e;
+
 param;
 %init = x0(LEO, 270, 0, 0, m)
 %init = [ D+rM 0 0 VM + D * omegaM m];

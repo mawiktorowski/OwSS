@@ -60,7 +60,7 @@ xBack(iter,:) = [xT psiT 0 0];
 for j = length(dtau):-1:1
     us(1) = u(j);
     us(2) = u(length(dtau) + j);       
-    g = @(x,u) rhsBack(x,u);
+    g = @(x,u) rhsPsi(x,u);
     for i = (cn(j+1)-1):-1:cn(j)
         dx1 = g(xBack(i+1,:), us);
         dx2 = g(xBack(i+1,:) - h2(j) * dx1, us);
@@ -73,6 +73,6 @@ for j = length(dtau):-1:1
     xBack(i,11:12) = [0 0]; % gamma(t_i+1) = 0
 end
 
-%psi = xBack(:,length(xT) + 1:2 * length(xT));
-psi = xBack;
+psi = xBack(:,length(xT) + 1:2 * length(xT));
+%psi = xBack;
 end

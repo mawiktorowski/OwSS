@@ -1,6 +1,6 @@
 close all;
 clear all;
-format long;
+format long e;
 
 param;
 %init = x0(LEO, 270, 0, 0, m);
@@ -12,20 +12,18 @@ tau = [0 T/3 2*T/3 T];
 ep=1e-6;
 out = zeros((2 * (length(tau) - 1)),1);
 
-Q0 = kosztSzybki(init, h, tau, u0);
+Q0 = solverSzybki(init, h, tau, u0);
 
 for i=1:(2 * (length(tau) - 1))
     u0tmp = u0;
     u0tmp(i) = u0(i)+ep;
-    Q = kosztSzybki(init, h, [0 T/3 2*T/3 T], u0tmp);
+    Q = solverSzybki(init, h, [0 T/3 2*T/3 T], u0tmp);
     out(i) = (Q - Q0) ./ ep;
 end
 
-[ t, x, psi, grad ] = solver(init, h, [0 T/3 2*T/3 T], u0);
-wizualizacja(x);
+[ ~, grad ] = solverSzybki(init, h, [0 T/3 2*T/3 T], u0);
 
 disp('Porównanie');
 disp ([out grad]);
-%disp (grad);
 disp('Procentowo (%)');
 disp (abs([out - grad] ./ out) * 100);

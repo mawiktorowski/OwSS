@@ -1,4 +1,4 @@
-function out = koszt(xT, T)
+function [Q, kara] = koszt(xT, T)
 % wyliczanie wskaznik jakosci
 
 global restmu K1 K2 rM VM mr
@@ -23,6 +23,7 @@ global restmu K1 K2 rM VM mr
         end
     end
 
-out = - xT(5) + K1 * T + K2 * (k1 + k2 + k3 + k4);
+kara = k1 + k2 + k3 + k4;
+Q = - xT(5) + K1 * T + K2 * kara;
 %[xT(5) T k1 k2 k3 k4]
 end
