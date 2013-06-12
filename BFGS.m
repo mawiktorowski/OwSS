@@ -1,106 +1,97 @@
-function [ x, Q ] = BFGS(x0, h0, tau, u, ogr)
-% algorytm BFGS
+function [ zd, Q ] = BFGS(x0, h0, tau, zd, ogr)
+% algorytm BFGS z wbudowanym poszukiwaniem na kierunku
 
 global ep0 ep1 ep2 epK0 epK1 MAX_ITER
 
-x = u;
-
-f = @(x) solverSzybki(x0, h0, tau, x);
-
-epK = epK0;     % dok³adnoœæ kontrakcji - zale¿nie od kierunku d
-
-R = 1;
+epK = epK0;
+R = true;
 iter = 1;
 
-while(iter <= MAX_ITER)   
-    [Q, grad] = f(x);
-%     grad(grad == ogr(:,1) & grad > 0) = 0;
-%     grad(grad == ogr(:,2) & grad < 0) = 0;
-% mam wrazenie ze te znaki powinny byc odwrotnie
-% stary kod prawdopodobnie do usuniecia
+f = @(x) solverSzybki(x0, h0, tau, x); % wyliczanie kosztu
+g = @(x) solverSzybki(x0, h0, tau, x); % wyliczanie kosztu i gradientu
+
+while(iter <= MAX_ITER)
+    % --- Krok 1 ------------------------------------
+    [Q, grad] = g(zd);
     %rzutowanie gradientu na ograniczenia
-    for j = 1:length(x)
-        if x(j) == ogr(j,1)
-            grad(grad > 0) = 0;
-        elseif x(j) == ogr(j,2)
-            grad(grad < 0) = 0;
-        end 
-    end
+    grad(zd == ogr(:,1) & grad > 0) = 0;
+    grad(zd == ogr(:,2) & grad < 0) = 0;
     
-    % ---- Krok 2 ----------------------------------
-    if norm(grad) <= ep0 
-        disp('KONIEC - MALA NORMA GRADIENTU. ');
-        disp('ITERACJA: ');
-        disp(iter);
-        break 
-    end
-     
-    % ---- Krok 3 -----------------------------------
-    if R
-        W = eye(length(x));
-        epK = epK0;
-    else
-        r = grad - gradOld;
-        s = x - xOld;
-        Ws = W*s;
-        W = W + (r*r')/(s'*r) - (Ws*s'*W)/(s'*Ws);
-        epK = epK1;
-    end
-    
-    d = W \ (-grad);
-  
-    % ---- Krok 4 -----------------------------------
-    %if d'*grad > -min(ep1, ep2*norm(Q)^2)    
-    if d'*grad > -min(ep1, ep2*norm(Q)^2)
-        disp('ODNOWA ALGORYTMU');
-        R = 1;      % idz do kroku 3
-        iter = iter+1;
-        continue    % przejœcie do kolejnej iteracji
-    end
-    
-    % ---- Krok 5 -----------------------------------
-    xOld = x;
-    gradOld = grad;
-    
-    % ---- Krok 6 -----------------------------------
-% line search !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%[x, Q] = lineSearch(x, d, Q, ogr, epK);
-% ---- "rzutowanie wektora d" na ograniczenia
-%d = max(d, ogr(:,1) - x);
-%d = min(d, ogr(:,2) - x);
-% stary kod prawdopodobnie do usuniecia
-    for i = 1:length(x)
-        d(x+d < ogr(i,1)) = ogr(i,1);
-        d(x+d > ogr(i,2)) = ogr(i,2);
-    end
-lambda = 1;
-% ---- wlasciwe poszukiwanie na kierunku
-while(lambda > epK)
-    xNew = x + lambda*d;
-    Qnew = f(xNew);
-    if(Qnew < Q)
-        x = xNew;
-        Q = Qnew;
+    % --- Krok 2 ------------------------------------
+    if norm(grad) <= ep0
+        fprintf(['KONIEC - MALA NORMA GRADIENTU\nITERACJA: ', num2str(iter) '\n']);
         break
-    else
-        lambda = lambda/2;  % kontrakcja
     end
-end 
-% koniec line search !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!   
-    % ---- Krok 7 -----------------------------------
-    if max(abs(xOld-x))   % je¿eli poprawa rozwi¹zania
-        R = 0;     
-    else 
-       if  R; 
-          disp('KONIEC - KIERUNEK NAJSZYBSZEGO SPADKU I BRAK POPRAWY');
-          break; 
-       else
-           R = 1;   %idz do kroku 3
-       end  
+
+    step3 = true;
+    while step3
+        % --- Krok 3 ------------------------------------
+        if R
+            W = eye(length(zd));
+            epK = epK0;
+        else
+            r = grad - gradOld;
+            s = zd - zdOld;
+            Ws = W * s;
+            W = W + (r * r')/(s' * r) - (Ws * s' * W)/(s' * Ws);
+            epK = epK1;
+        end
+        
+        d = W \ (-grad);
+        
+        % --- Krok 4 ------------------------------------
+        if d' * grad > - max(ep1, ep2 * norm(grad)^2)
+            fprintf('ODNOWA ALGORYTMU\n');
+            R = true;
+            iter = iter + 1;
+            continue
+        end
+        
+        % --- Krok 5 ------------------------------------
+        zdOld = zd;
+        gradOld = grad;
+        
+        % --- Krok 6 ------------------------------------
+        % --- Line Search -------------------------------
+        % rzutowanie wektora d na ograniczenia
+        d = max(d, ogr(:,1) - zd);
+        d = min(d, ogr(:,2) - zd);
+        lambda = 1;
+        while(lambda > epK)
+            zdNew = zd + lambda * d;
+            QNew = f(zdNew);
+            if(QNew < Q)
+                zd = zdNew;
+                Q = QNew;
+                break
+            else
+                lambda = lambda/2; % kontrakcja
+            end
+        end
+        
+        % --- Krok 7 ------------------------------------
+        if max(abs(zdOld - zd))
+            R = false;
+            break
+        else
+            if R
+                fprintf('KONIEC - KIERUNEK NAJSZYBSZEGO SPADKU I BRAK POPRAWY\n');
+                step3 = false;
+                break
+            else
+                R = true;
+                iter = iter + 1;
+            end
+        end
     end
     
-    iter = iter+1
+    if ~step3
+        break
+    end
+    iter = iter + 1;
+    
 end
-x
+iter
+zd
 Q
 end
