@@ -51,7 +51,7 @@ while(i <= MAX_ITER)
   
     % ---- Krok 4 -----------------------------------
     %if d'*grad > -min(ep1, ep2*norm(Q)^2)    
-    if d'*grad > -max(ep1, ep2*norm(Q)^2)
+    if d'*grad > -min(ep1, ep2*norm(Q)^2)
         disp('ODNOWA ALGORYTMU');
         R = 1;      % idz do kroku 3
         i = i+1;
@@ -75,10 +75,8 @@ d = min(d, ogr(:,2) - x);
 %     end
 lambda = 1;
 % ---- wlasciwe poszukiwanie na kierunku
-while(lambda > ep)
+while(lambda > epK)
     xNew = x + lambda*d;
-    disp(xNew);
-    xNew
     Qnew = f(xNew);
     if(Qnew < Q)
         x = xNew;
