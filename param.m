@@ -52,4 +52,4 @@ ep1 = 0.5e-16;  % odnowa algorytmu
 ep2 = 0.5;   	% odnowa algorytmu
 epK0 = 1e-16; 	% dokladnosc kontrakcji - d == kierunek najszybszego spadku
 epK1 = 1e-6;    % dokladnosc kontrakcji - d != kierunek najszybszego spadku
-MAX_ITER = 20;
+MAX_ITER = 10;

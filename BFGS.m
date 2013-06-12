@@ -10,28 +10,28 @@ f = @(x) solverSzybki(x0, h0, tau, x);
 epK = epK0;     % dok³adnoœæ kontrakcji - zale¿nie od kierunku d
 
 R = 1;
-i = 1;
+iter = 1;
 
-while(i <= MAX_ITER)   
+while(iter <= MAX_ITER)   
     [Q, grad] = f(x);
-    grad(grad == ogr(:,1) & grad > 0) = 0;
-    grad(grad == ogr(:,2) & grad < 0) = 0;
+%     grad(grad == ogr(:,1) & grad > 0) = 0;
+%     grad(grad == ogr(:,2) & grad < 0) = 0;
 % mam wrazenie ze te znaki powinny byc odwrotnie
 % stary kod prawdopodobnie do usuniecia
-%     %rzutowanie gradientu na ograniczenia
-%     for j = 1:length(x)
-%         if x(j) == ogr(j,1)
-%             grad(grad > 0) = 0;
-%         elseif x(j) == ogr(j,2)
-%             grad(grad < 0) = 0;
-%         end 
-%     end
+    %rzutowanie gradientu na ograniczenia
+    for j = 1:length(x)
+        if x(j) == ogr(j,1)
+            grad(grad > 0) = 0;
+        elseif x(j) == ogr(j,2)
+            grad(grad < 0) = 0;
+        end 
+    end
     
     % ---- Krok 2 ----------------------------------
     if norm(grad) <= ep0 
         disp('KONIEC - MALA NORMA GRADIENTU. ');
         disp('ITERACJA: ');
-        disp(i);
+        disp(iter);
         break 
     end
      
@@ -54,7 +54,7 @@ while(i <= MAX_ITER)
     if d'*grad > -min(ep1, ep2*norm(Q)^2)
         disp('ODNOWA ALGORYTMU');
         R = 1;      % idz do kroku 3
-        i = i+1;
+        iter = iter+1;
         continue    % przejœcie do kolejnej iteracji
     end
     
@@ -66,13 +66,13 @@ while(i <= MAX_ITER)
 % line search !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 %[x, Q] = lineSearch(x, d, Q, ogr, epK);
 % ---- "rzutowanie wektora d" na ograniczenia
-d = max(d, ogr(:,1) - x);
-d = min(d, ogr(:,2) - x);
+%d = max(d, ogr(:,1) - x);
+%d = min(d, ogr(:,2) - x);
 % stary kod prawdopodobnie do usuniecia
-%     for i = 1:length(x)
-%         d(x+d < ogr(i,1)) = ogr(i,1);
-%         d(x+d > ogr(i,2)) = ogr(i,2);
-%     end
+    for i = 1:length(x)
+        d(x+d < ogr(i,1)) = ogr(i,1);
+        d(x+d > ogr(i,2)) = ogr(i,2);
+    end
 lambda = 1;
 % ---- wlasciwe poszukiwanie na kierunku
 while(lambda > epK)
@@ -99,6 +99,8 @@ end
        end  
     end
     
-    i = i+1;
+    iter = iter+1
 end
+x
+Q
 end

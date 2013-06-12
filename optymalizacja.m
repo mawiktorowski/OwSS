@@ -12,6 +12,6 @@ tau = [0 T/3 2*T/3 T];
 ogr = [10 -10; 10 -10; 10 -10; -inf inf; -inf inf; -inf inf];
 [ uopt, Q ] = BFGS(init, h, tau, u, ogr);
 
-[ t, x, psi, grad ] = solver(init, h, tau, u);
+[ t, x, psi, grad ] = solver(init, h, tau, uopt);
 wizualizacja(x);
 %Q = solverSzybki(init, h, tau, u)
