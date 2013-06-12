@@ -167,103 +167,21 @@ $\beta_2 = V_M^2 - (x_3(T) - x_2(T))^2 - (x_4(T)+ x_1(T))^2$
 $\beta_3 = - (x_1(T) - 1 + \mu) \cdot (x_3(T) - x_2(T)) - x_2(T) \cdot (x_4(T) +
 x_1(T))$
 
+### Rodzaj sterowania
+
+Na początek oba sterowania schodkowe.
+
+### Gradient sterowań
+
+$G_i = \partial_{u_i}Q = - \int\limits_{t_i}^{t_{i+1}}\partial_u
+H(\Psi,x,u_i)dt\quad i=1,...,N-1$
+
+$\partial_u H(\Psi,x,u_i) = \Psi_3 \cdot \frac{\cos(\phi)}{x_5} + \Psi_4 \cdot
+\frac{\sin(\phi)}{x_5} - \Psi_5 \cdot C_1$
+
+$\partial_\phi H(\Psi,x,u_i) = - \Psi_3 \cdot \frac{u \cdot \sin(\phi)}{x_5} +
+\Psi_4 \cdot \frac{u \cdot \cos(\phi)}{x_5}$
+
 ### Źródła
 
 <http://www.hindawi.com/journals/mpe/2012/971983/>
-
-Welcome to Texts!
-=================
-
-Texts is “rich editor for plain text”—you can write documents in visual
-interface and they will be saved in plain text format with Markdown markup. This
-document shows some styles available in Texts. Please feel free to edit it—a
-fresh copy is always available via Help menu.
-
-Inline Formatting
------------------
-
-To apply *emphasis* or **strong emphasis** press Control+I or Control+B and
-type. Press again to turn it off.
-
-Tables
-------
-
-+---+---+---+
-| 1 | 2 | 3 |
-+---+---+---+
-| 4 | 5 | 6 |
-+---+---+---+
-| 7 | 8 | 9 |
-+---+---+---+
-
-Footnotes
----------
-
-Notes can be placed anywhere[^1] in the source file (press Control+R to insert
-one). When document is published to paper-oriented format (PDF or Word)
-footnotes are displayed at the bottom of the corresponding page. E-book readers
-usually display notes in popups.
-
-[^1]: Yes, right here.
-
-Hyperlinks
-----------
-
-Press Control+K to insert a hyperlink. It can be either literal URL
-(<http://www.google.com/>) or have some [text][2]. Click URL with Control key
-pressed to open it in web browser.
-
-[2]: <http://www.texts.io/>
-
-Math
-----
-
-Formulas can be placed inline like $E=mc^2$ or in a separate paragraph, like the
-following one. Standard LaTeX syntax is supported.
-
-$$
-\frac{n!}{k!(n-k)!} = \binom{n}{k}
-$$
-
-Code
-----
-
-Inline `code` gets monospaced font.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Verbatim blocks use monospaced font as well and preserve line
-breaks
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Press “Enter” key inside code block to insert a line break or “Shift+Enter” to
-end code block.
-
-Lists
------
-
--   First bulleted item.
-
--   Second bulleted item.
-
-    -   Subitem.
-
-        -   Subsubitem.
-
-            -   And some more.
-
-1.  First numbered item.
-
-2.  Second numbered item.
-
-    1.  Subitem.
-
-        1.  Subsubitem.
-
-Lists can be entered via autoformatting: type minus and space for bulleted item
-or “1”, point and space for numbered item. Press “Tab” or “Shift+Tab” to
-indent/unindent items.
-
-Happy writing!
-==============
-
-Got a question? Visit <http://www.texts.io/support/>.
