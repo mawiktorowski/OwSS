@@ -1,7 +1,7 @@
 global T h K1 K2
-global mr
+global mr m
 global D mu restmu
-global aE aM LEO LMO rM VM
+global aE aM LEO LMO rM VM rE VE
 global C1 C2
 global ep0 ep1 ep2 epK0 epK1 MAX_ITER
 
@@ -35,6 +35,9 @@ aM = 1738;
 LEO = 463;
 LMO = 100;
 
+rE = (aE + LEO) / D;
+VE = sqrt(restmu/rE);
+
 rM = (LMO + aM) / D;
 VM = sqrt(mu/rM);
 
@@ -44,7 +47,7 @@ C2 = 0.1 / 3000;
 
 % parametry modelu (rakieta)
 mr = 10000 / 1000; % masa rakiety bez paliwa
-m = 20000;
+m = 20000 / 1000;
 
 % parametry algorytmu BFGS
 ep0 = 1e-8;     % minimalna norma gradientu
@@ -53,3 +56,10 @@ ep2 = 0.5;   	% odnowa algorytmu
 epK0 = 1e-16; 	% dokladnosc kontrakcji - d == kierunek najszybszego spadku
 epK1 = 1e-6;    % dokladnosc kontrakcji - d != kierunek najszybszego spadku
 MAX_ITER = 10;
+
+%opts = struct('ep0', 1e-8, 'ep1', 0.5e-16, 'ep2', 0.5, 'epK0', 1e-16, 'epK1', 1e-6, 'MAX_ITER', 10);
+
+
+
+
+

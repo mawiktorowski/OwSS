@@ -1,4 +1,4 @@
-function [ zd, Q ] = BFGS(x0, h0, tau, zd, ogr)
+function [ zd, Q ] = BFGS(zd, h0, tau, ogr)
 % algorytm BFGS z wbudowanym poszukiwaniem na kierunku
 
 global ep0 ep1 ep2 epK0 epK1 MAX_ITER
@@ -7,8 +7,8 @@ epK = epK0;
 R = true;
 iter = 1;
 
-f = @(x) solverSzybki(x0, h0, tau, x); % wyliczanie kosztu
-g = @(x) solverSzybki(x0, h0, tau, x); % wyliczanie kosztu i gradientu
+f = @(x) kosztSzybki(zd, h0, tau); % wyliczanie kosztu
+g = @(x) solverSzybki(zd, h0, tau); % wyliczanie kosztu i gradientu
 
 while(iter <= MAX_ITER)
     % --- Krok 1 ------------------------------------

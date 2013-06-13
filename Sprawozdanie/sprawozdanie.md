@@ -182,6 +182,67 @@ $\partial_u H(\Psi,x,u_i) = \Psi_3 \cdot \frac{\cos(\phi)}{x_5} + \Psi_4 \cdot
 $\partial_\phi H(\Psi,x,u_i) = - \Psi_3 \cdot \frac{u \cdot \sin(\phi)}{x_5} +
 \Psi_4 \cdot \frac{u \cdot \cos(\phi)}{x_5}$
 
+### Gradient parametrów
+
+$\frac{\partial Q}{\partial \theta_E} = \frac{\partial Q}{\partial x_1(0)} \cdot
+\frac{\partial x_1(0)}{\partial \theta_E} + \frac{\partial Q}{\partial x_2(0)}
+\cdot \frac{\partial x_2(0)}{\partial \theta_E} + \frac{\partial Q}{\partial
+x_3(0)} \cdot \frac{\partial x_3(0)}{\partial \theta_E} + \frac{\partial
+Q}{\partial x_4(0)} \cdot \frac{\partial x_4(0)}{\partial \theta_E}$
+
+$\frac{\partial Q}{\partial \alpha} = \frac{\partial Q}{\partial x_3(0)} \cdot
+\frac{\partial x_3(0)}{\partial \alpha} + \frac{\partial Q}{\partial x_4(0)}
+\cdot \frac{\partial x_4(0)}{\partial \alpha}$
+
+$\frac{\partial Q}{\partial \Delta V} = \frac{\partial Q}{\partial x_3(0)} \cdot
+\frac{\partial x_3(0)}{\partial \Delta V} + \frac{\partial Q}{\partial x_4(0)}
+\cdot \frac{\partial x_4(0)}{\partial \Delta V} + \frac{\partial Q}{\partial
+x_5(0)} \cdot \frac{\partial x_5(0)}{\partial \Delta V}$
+
+Korzystając z tożsamości:
+
+$\frac{\partial Q}{\partial x(0)} = -\Psi(0)$
+
+Gradient parametrów:
+
+$\frac{\partial Q}{\partial \theta_E} = - \Psi_1(0) \cdot \frac{\partial
+x_1(0)}{\partial \theta_E} - \Psi_2(0) \cdot \frac{\partial x_2(0)}{\partial
+\theta_E} - \Psi_3(0) \cdot \frac{\partial x_3(0)}{\partial \theta_E} -
+\Psi_4(0) \cdot \frac{\partial x_4(0)}{\partial \theta_E}$
+
+$\frac{\partial Q}{\partial \alpha} = - \Psi_3(0) \cdot \frac{\partial
+x_3(0)}{\partial \alpha} - \Psi_4(0) \cdot \frac{\partial x_4(0)}{\partial
+\alpha}$
+
+$\frac{\partial Q}{\partial \Delta V} = \Psi_3(0) \cdot \frac{\partial
+x_3(0)}{\partial \Delta V} - \Psi_4(0) \cdot \frac{\partial x_4(0)}{\partial
+\Delta V} - \Psi_5(0) \cdot \frac{\partial x_5(0)}{\partial \Delta V}$
+
+Gdzie:
+
+$\frac{\partial x_1(0)}{\partial \theta_E} = - r_E \cdot sin(\theta_E)$
+
+$\frac{\partial x_2(0)}{\partial \theta_E} = r_E \cdot cos(\theta_E)$
+
+$\frac{\partial x_3(0)}{\partial \theta_E} = - \Delta V \cdot \cos(\alpha -
+\theta_E) - V_E \cdot \cos(\theta_E) + r_E \cdot \cos(\theta_E)$
+
+$\frac{\partial x_4(0)}{\partial \theta_E} = \Delta V \cdot \sin(\alpha -
+\theta_E) - V_E \cdot \cos(\theta_E) + r_E \cdot \sin(\theta_E)$
+
+$\frac{\partial x_3(0)}{\partial \alpha} = \Delta V \cdot \cos(\alpha -
+\theta_E)$
+
+$\frac{\partial x_4(0)}{\partial \alpha} = - \Delta V \cdot \sin(\alpha -
+\theta_E)$
+
+$\frac{\partial x_3(0)}{\partial \Delta V} = \sin(\alpha - \theta_E)$
+
+$\frac{\partial x_4(0)}{\partial \Delta V} = \cos(\alpha - \theta_E)$
+
+$\frac{\partial x_5(0)}{\partial \Delta V} = - m_0 \cdot C_2 \cdot e^{-C_2 \cdot
+\Delta V}$
+
 ### Źródła
 
 <http://www.hindawi.com/journals/mpe/2012/971983/>
