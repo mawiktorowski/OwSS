@@ -1,0 +1,1 @@
+mex -largeArrayDims mnozenie.c -lmwblas
