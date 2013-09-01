@@ -1,7 +1,8 @@
 #include "mex.h"
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
 {
-// C = x + A * B    
+// C = x + A * B 
+// out = x + h * dx    
 double *A, *B, *C, one = 1.0;
 int m,n,p; 
 char *chn = "N";
