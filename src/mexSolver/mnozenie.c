@@ -9,9 +9,11 @@ B = mxGetPr(prhs[1]);
 m = mxGetM(prhs[0]);
 p = mxGetN(prhs[0]);
 n = mxGetN(prhs[1]);
+/* Używanie jedynie w programie gdzie nie ma możliwości wprowadzenia
+// złych wymiarów macierzy.
 if (p != mxGetM(prhs[1])) {
 mexErrMsgTxt("Inner dimensions of matrix multiply do not match");
-}
+} */
 plhs[0] = mxCreateDoubleMatrix(m, n, mxREAL);
 C = mxGetPr(plhs[0]);
 /* Pass all arguments by reference */
