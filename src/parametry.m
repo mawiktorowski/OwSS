@@ -38,7 +38,7 @@ ep2 = 1e-5;   	% odnowa algorytmu
 epK0 = 1e-16; 	% dokladnosc kontrakcji - d == kierunek najszybszego spadku
 epK1 = 1e-6;    % dokladnosc kontrakcji - d != kierunek najszybszego spadku
 %MAX_ITER = 20000;  % ilosc iteracji
-MAX_ITER = 20;  % ilosc iteracji
+MAX_ITER = 100;  % ilosc iteracji
 epOgr = 1e-10;
 
 % parametry symulacji czesc obliczana

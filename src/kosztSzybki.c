@@ -36,8 +36,8 @@ void rhs(double out[], double x[], double u[], struct param *p)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
 {
     double *ptrZd, x[5], rho, u[2], hj, h2j, h3j, h6j, dx1[5], dx2[5],
-            dx3[5], dx4[5], farg[5], xw, xw2, yw2, uw2, vw2, rsk1, rsk2,
-            rsk3, k1, k2, k3, k4, *kara, *Q;
+            dx3[5], dx4[5], farg[5], xw, xw2, yw2, uw2, vw2, beta1, beta2,
+            beta3, k1, k2, k3, k4, *kara, *Q;
     int i, j, k, jj;
     struct param p;
     struct var v;
@@ -89,7 +89,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
         h2j = v.h2[j];
         h3j = v.h3[j];
         h6j = v.h6[j];
-        //printf("%f\n", v.h[j]);
         for(i = v.cn[j]; i < v.cn[j+1]; i++){
             // calosc petli do przerobienia potem
             rhs(dx1, x, u, &p);
@@ -103,8 +102,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
         }
     }
     
-    for(k=0; k < 5; k++) printf("%f ", x[k]);
-    
     xw = x[0] - p.rmu;
     
     xw2 = xw * xw;
@@ -112,13 +109,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
     uw2 = x[2] * x[2];
     vw2 = x[3] * x[3];
     
-    rsk1 = xw2 + yw2 - p.rM2;
-    rsk2 = uw2 + vw2 - p.VM2;
-    rsk3 = xw * x[2] + x[1] * x[3];
+    beta1 = xw2 + yw2 - p.rM2;
+    beta2 = uw2 + vw2 - p.VM2;
+    beta3 = xw * x[2] + x[1] * x[3];
     
-    k1 = 0.25 * rsk1 * rsk1;
-    k2 = 0.25 * rsk2 * rsk2;
-    k3 = 0.5 * rsk3 * rsk3;
+    k1 = 0.25 * beta1 * beta1;
+    k2 = 0.25 * beta2 * beta2;
+    k3 = 0.5 * beta3 * beta3;
     
     if (x[4] < p.mr) k4 = 0.5 * pow((x[4] - p.mr), 2);
     else k4 = 0;
