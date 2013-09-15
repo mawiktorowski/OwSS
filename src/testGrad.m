@@ -1,28 +1,17 @@
-close all;
-clear all;
-format long e;
+function [ dQ, grad ] = testGrad(zd, param, var, ep, rho)
 
-%param;
+dQ = zeros(length(zd), 1);
 
-[param, ~] = parametry();
+Q0 = kosztSzybki(zd, param, var, rho);
 
-thetaRad = 230 * 2 * pi / 360;
-dVE = 3;
-u = [0; 0; 0; 0; 0; 0];
-%u = [0.2; 0.2; 0.2; 0; 0; 0];
+for m=1:length(zd)
+    zdtmp = zd;
+    zdtmp(m) = zd(m)+ep;
+    dQ(m) = kosztSzybki(zdtmp, param, var, rho);
+end
 
-zd = [thetaRad; dVE; u];
+dQ = (dQ - Q0) ./ ep;
 
-T = 1;
-tau = [0 T/3 2*T/3 T];
-ep=1e-6;
-rho = 1;
+grad = solverSzybki(zd, param, var, rho);
 
-var = obliczenia(param.h0, tau);
-
-[ dQ, grad ] = sprawdzenieGrad(zd, param, var, ep, rho);
-
-disp('Porównanie');
-disp ([dQ, grad]);
-disp('Procentowo (%)');
-disp (abs((dQ - grad) ./ grad) * 100);
+end

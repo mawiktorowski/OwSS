@@ -1,40 +1,26 @@
-close all;
-clear all;
-format long e;
+function [ Q, zd, tau, dop ] = funkcjaKary(zd, tau, param, opts)
+% funkcja kary
 
-[param, opts] = parametry();
-
-thetaRad = 230 * 2 * pi / 360;
-dVE = 3;
-%u = [0; 0; 0; 0; 0; 0];
-u = [0.2; 0.2; 0.2; 0; 0; 0];
-
-zd = [thetaRad; dVE; u];
-
-k = 10^6;
-epKara = 10^-6;
-c = 10;
-
-T = 1;
-tau = [0 T/3 2*T/3 T];
+dop = false;
 rho = 1;
+
+while rho < opts.k
+    [ zdopt, ~, kara ] = BFGS(zd, tau, param, rho, opts);
+    if (kara < opts.epKara)
+        break
+    end
+    zd = zdopt;
+    rho = rho * opts.c;
+end
 
 var = obliczenia(param.h0, tau);
 
-i = 1;
-while rho < k
-    [ zdopt, Q, kara ] = BFGS(zd, tau, param, rho, opts);
-    disp([Q kara]);
-    if (norm(zd - zdopt) < epKara)
-       break 
-    end
-    zd = zdopt;
-    rho = rho * c;
+[ Q, ~ ] = kosztSzybki(zd, param, var, 0);
+
+if (kara < opts.epKara)
+    dop = true;
+    fprintf(['CEL OSI¥GNIÊTY     Q=', num2str(Q), ' T=', num2str(tau(end)) '\n']);
+else
+    fprintf(['CEL NIE OSI¥GNIÊTY Q=', num2str(Q), ' T=', num2str(tau(end)) '\n']);
 end
-
-zdopt
-Q
-kara
-
-[ x, ~, ~ ] = solver(zdopt, param, var, 0);
-wizualizacja(x, param);
+end

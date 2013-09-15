@@ -1,19 +1,18 @@
-% test Psi
-close all;
-clear all;
-format long;
+function [ dH, psi ] = testH(x0, psi0, u, param, ep)
+% sprawdzenie poprawnosci wyliczania rownan sprzezonych
 
-[param, ~] = parametry();
+dH = zeros(9,1);
+rhs(x0, u, param)
+H0 = sum(psi0 .* rhs(x0, u, param));
 
-x0 = [1 1 1 1 1];
-psi0 = [1 1 1 1 1];
-u = [1;1];
+for m=1:9
+    x0tmp = x0;
+    x0tmp(m) = x0(m)+ep;
+    dH(m) = sum(psi0 .* rhs(x0tmp, u, param));
+end
 
-ep=1e-6;
+dH = (dH - H0) ./ ep;
+psi = rhsPsi([x0 psi0],u, param);
+psi = - psi(10:18)';
 
-[ dH, psi ] = sprawdzenieH(x0, psi0, u, param, ep);
-
-disp('Porównanie');
-disp ([dH, psi]);
-disp('Procentowo (%)');
-disp (abs((dH - psi) ./ psi) * 100);
+end

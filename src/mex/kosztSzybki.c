@@ -2,7 +2,7 @@
 #include <math.h>
 
 struct param{
-    double mu, rmu, rE, VE, rM2, VM2, m0, mr, C1, C2, K1, K2;
+    double gE, gM, D, D3, omega, rE, VE, rM2, VM2, m0, mr, C1, C2, K1, K2;
 };
 
 struct var{
@@ -11,41 +11,51 @@ struct var{
 
 void rhs(double out[], double x[], double u[], struct param *p)
 {
-    double x1mu, x1rmu, x22, x1mu2, x1rmu2, rE, rM, rE3, rM3, coeff1, coeff2;
+    double xm, ym, xm2, ym2, x32, x42, rE, rM, rE3, rM3,
+            coeff1, coeff2, coeff3; 
     
-    x1mu = x[0] + p->mu;
-    x1rmu = x[0] - p->rmu;
-    x22 = x[1] * x[1];
-    x1mu2 = x1mu * x1mu;
-    x1rmu2 = x1rmu * x1rmu;
-    rE = sqrt(x1mu2 + x22);
-    rM = sqrt(x1rmu2 + x22);
+    xm = x[2] - x[0];
+    ym = x[3] - x[1];
+    xm2 = xm * xm;
+    ym2 = ym * ym;
+    x32 = x[2] * x[2];
+    x42 = x[3] * x[3];
+    rE = sqrt(x32 + x42);
+    rM = sqrt(xm2 + ym2);
     rE3 = rE * rE * rE;
     rM3 = rM * rM * rM;
-    coeff1 = p->rmu / rE3;
-    coeff2 = p->mu / rM3;
+    coeff1 = p->gE / p->D3;    
+    coeff2 = p->gE / rE3;
+    coeff3 = p->gM / rM3;
     
-    out[0] = x[2];
-    out[1] = x[3];
-    out[2] = x[0] + 2 * x[3] - coeff1 * x1mu - coeff2 * x1rmu + u[0] * cos(u[1]) / x[4];
-    out[3] = x[1] - 2 * x[2] - (coeff1 + coeff2) * x[1] + u[0] * sin(u[1]) / x[4];
-    out[4] = p->C1 * u[0];
+    out[0] = x[4];
+    out[1] = x[5];
+    out[2] = x[6];
+    out[3] = x[7];
+    out[4] = - coeff1 * x[0];
+    out[5] = - coeff1 * x[1];
+    out[6] = - coeff2 * x[2] - coeff3 * xm + u[0] * cos(u[1]) / x[8];
+    out[7] = - coeff2 * x[3] - coeff3 * ym + u[0] * sin(u[1]) / x[8];
+    out[8] = p->C1 * u[0];
 }
 
 // function [ Q, kara ] = kosztSzybki(zd, param, var, rho)
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
 {
-    double *ptrZd, x[5], rho, u[2], hj, h2j, h3j, h6j, dx1[5], dx2[5],
-            dx3[5], dx4[5], farg[5], xw, xw2, yw2, uw2, vw2, beta1, beta2,
-            beta3, k1, k2, k3, k4, *kara, *Q;
+    double *ptrZd, x[9], rho, u[2], hj, h2j, h3j, h6j, dx1[9], dx2[9],
+            dx3[9], dx4[9], farg[9], xm, ym, um, vm ,xm2, ym2, um2, vm2,
+            beta1, beta2, beta3, k1, k2, k3, k4, *kara, *Q;
     int i, j, k, jj;
     struct param p;
     struct var v;
     
     ptrZd = mxGetPr(prhs[0]);
     
-    p.mu = mxGetScalar(mxGetField(prhs[1], 0, "mu"));
-    p.rmu = mxGetScalar(mxGetField(prhs[1], 0, "restmu"));
+    p.gE = mxGetScalar(mxGetField(prhs[1], 0, "gE"));
+    p.gM = mxGetScalar(mxGetField(prhs[1], 0, "gM"));
+    p.D = mxGetScalar(mxGetField(prhs[1], 0, "D"));
+    p.D3 = mxGetScalar(mxGetField(prhs[1], 0, "D3"));
+    p.omega = mxGetScalar(mxGetField(prhs[1], 0, "omega"));
     p.rE = mxGetScalar(mxGetField(prhs[1], 0, "rE"));
     p.VE = mxGetScalar(mxGetField(prhs[1], 0, "VE"));
     p.rM2 = mxGetScalar(mxGetField(prhs[1], 0, "rM2"));
@@ -75,11 +85,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
     plhs[1] = mxCreateDoubleMatrix(1, 1, mxREAL);
     kara = mxGetPr(plhs[1]);
     
-    x[0] = p.rE * cos(ptrZd[0]) - p.mu;
-    x[1] = p.rE * sin(ptrZd[0]);
-    x[2] = - (p.VE + ptrZd[1]) * sin(ptrZd[0]);
-    x[3] = (p.VE + ptrZd[1]) * cos(ptrZd[0]);
-    x[4] = p.m0 * exp(p.C2 * ptrZd[1]);
+    x[0] = p.D;
+    x[1] = 0;
+    x[2] = p.rE * cos(ptrZd[0]);
+    x[3] = p.rE * sin(ptrZd[0]);
+    x[4] = 0;
+    x[5] = p.omega * p.D;
+    x[6] = - (p.VE + ptrZd[1]) * sin(ptrZd[0]);
+    x[7] = (p.VE + ptrZd[1]) * cos(ptrZd[0]);
+    x[8] = p.m0 * exp(p.C2 * ptrZd[1]);
     
     for(j=0; j < v.ldtau; j++){
         jj = v.ldtau + j;
@@ -92,35 +106,38 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, mxArray *prhs[])
         for(i = v.cn[j]; i < v.cn[j+1]; i++){
             // calosc petli do przerobienia potem
             rhs(dx1, x, u, &p);
-            for(k=0; k < 5; k++) farg[k] = x[k] + h2j * dx1[k];
+            for(k=0; k < 9; k++) farg[k] = x[k] + h2j * dx1[k];
             rhs(dx2, farg, u, &p);
-            for(k=0; k < 5; k++) farg[k] = x[k] + h2j * dx2[k];
+            for(k=0; k < 9; k++) farg[k] = x[k] + h2j * dx2[k];
             rhs(dx3, farg, u, &p);
-            for(k=0; k < 5; k++) farg[k] = x[k] + hj * dx3[k];
+            for(k=0; k < 9; k++) farg[k] = x[k] + hj * dx3[k];
             rhs(dx4, farg, u, &p);
-            for(k=0; k < 5; k++) x[k] = x[k] + h3j * (dx2[k] + dx3[k]) + h6j * (dx1[k] + dx4[k]);
+            for(k=0; k < 9; k++) x[k] = x[k] + h3j * (dx2[k] + dx3[k]) + h6j * (dx1[k] + dx4[k]);
         }
     }
     
-    xw = x[0] - p.rmu;
+    xm = x[2] - x[0];
+    ym = x[3] - x[1];
+    um = x[6] - x[4];
+    vm = x[7] - x[5];
+
+    xm2 = xm * xm;
+    ym2 = ym * ym;
+    um2 = um * um;
+    vm2 = vm * vm;
     
-    xw2 = xw * xw;
-    yw2 = x[1] * x[1];
-    uw2 = x[2] * x[2];
-    vw2 = x[3] * x[3];
-    
-    beta1 = xw2 + yw2 - p.rM2;
-    beta2 = uw2 + vw2 - p.VM2;
-    beta3 = xw * x[2] + x[1] * x[3];
+    beta1 = xm2 + ym2 - p.rM2;
+    beta2 = um2 + vm2 - p.VM2;
+    beta3 = xm * um + ym * vm;
     
     k1 = 0.25 * beta1 * beta1;
     k2 = 0.25 * beta2 * beta2;
     k3 = 0.5 * beta3 * beta3;
     
-    if (x[4] < p.mr) k4 = 0.5 * pow((x[4] - p.mr), 2);
+    if (x[8] < p.mr) k4 = 0.5 * pow((x[8] - p.mr), 2);
     else k4 = 0;
     
     *kara = k1 + k2 + k3 + k4;
-    *Q = - p.K1 * x[4] + p.K2 * v.tf + rho * *kara;
+    *Q = - p.K1 * x[8] + p.K2 * v.tf + rho * *kara;
     
 }
