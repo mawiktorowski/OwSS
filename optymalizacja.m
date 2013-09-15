@@ -24,6 +24,8 @@ Ne = 5; %iloœæ kroków ekspansji
 beta = 0.5; % wspó³czynnik kontrakcji
 epK = 2e-10;
 Nz = 5; %iloœæ kroków z³otego podzia³u
+K1 = param.K1;
+param.K1 = 0; %na potrzeby poszukiwania rozwi¹zania dopuszczalnego
 
 % poszukiwanie rozwi¹zañ dopuszczalnych
 % musi byæ przeszukiwane odpowiednio gêsto, aby nie przegapiæ minimum
@@ -33,6 +35,10 @@ while true
     Thist = [Thist T];
     Qhist = [Qhist Q];
     if dop
+        param.K1 = K1;
+        [ Q, zd, tau, dop ] = funkcjaKary(zd0, tau, param, opts);
+        Thist(end) = T;
+        Qhist(end) = Q;
         %disp('Przerwano');
         Td = T;
         Qd = Q;
