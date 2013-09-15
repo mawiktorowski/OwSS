@@ -14,5 +14,3 @@ tf = tau(end);
 
 var = struct('h', h, 'h2', h2, 'h3', h3, 'h6', h6, 'cn', cn, 'iter', iter, 'ldtau', ldtau, 'tf', tf);
 end
-
-

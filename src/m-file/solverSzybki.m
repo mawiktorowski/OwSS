@@ -5,8 +5,9 @@ x = zeros(1,5);
 gradU = zeros(2 * var.ldtau,1);
 us = zeros(2,1);
 u = zd(3:end);
+t = 0;
 
-x(1) = param.rE * cos(zd(1)) - param.mu;
+x(1) = param.rE * cos(zd(1));
 x(2) = param.rE * sin(zd(1));
 x(3) = - (param.VE + zd(2)) * sin(zd(1));
 x(4) = (param.VE + zd(2)) * cos(zd(1));
@@ -21,50 +22,33 @@ for j = 1:var.ldtau
     h3j = var.h3(j);
     h6j = var.h6(j);
     for i = var.cn(j):var.cn(j+1)-1
-        dx1 = rhs(x, us, param);
+        dx1 = rhs(t, x, us, param);
+        targ = t + h2j;
         farg = x + h2j * dx1;
-        dx2 = rhs(farg, us, param);
+        dx2 = rhs(targ, farg, us, param);
         farg = x + h2j * dx2;
-        dx3 = rhs(farg, us, param);
+        dx3 = rhs(targ, farg, us, param);
+        targ = t + hj;
         farg = x + hj * dx3;
-        dx4 = rhs(farg, us, param);
+        dx4 = rhs(targ, farg, us, param);
         x = x + h3j * (dx2 + dx3) + h6j * (dx1 + dx4);
+        t = t + hj;
     end
 end
 
-        xw = x(1) - param.restmu;
-        
-        xw2 = xw * xw;
-        yw2 = x(2) * x(2);
-        uw2 = x(3) * x(3);
-        vw2 = x(4) * x(4);
-        
-        rsk1 = xw2 + yw2 - param.rM2;
-        rsk2 = uw2 + vw2 - param.VM2;
-        rsk3 = xw * x(3) + x(2) * x(4);
-        
-        k1 = 0.25 * rsk1 * rsk1;
-        k2 = 0.25 * rsk2 * rsk2;
-        k3 = 0.5 * rsk3 * rsk3;
-        if x(5) < param.mr
-            k4 = 0.5 * (x(5) - param.mr)^2;
-        else
-            k4 = 0;
-        end
-        
-        kara = k1 + k2 + k3 + k4;
-        Q = - param.K1 * x(5) + param.K2 * var.tf + rho * kara;
+xm = x(1) -               param.D * cos(param.omega * t);
+ym = x(2) -               param.D * sin(param.omega * t);
+um = x(3) + param.omega * param.D * sin(param.omega * t);
+vm = x(4) - param.omega * param.D * cos(param.omega * t);
 
-xw = x(1) - param.restmu;
+xm2 = xm * xm;
+ym2 = ym * ym;
+um2 = um * um;
+vm2 = vm * vm;
 
-xw2 = xw * xw;
-yw2 = x(2) * x(2);
-uw2 = x(3) * x(3);
-vw2 = x(4) * x(4);
-
-beta1 = xw2 + yw2 - param.rM2;
-beta2 = uw2 + vw2 - param.VM2;
-beta3 = xw * x(3) + x(2) * x(4);
+beta1 = xm2 + ym2 - param.rM2;
+beta2 = um2 + vm2 - param.VM2;
+beta3 = xm * um + ym * vm;
 
 if x(5) <= param.mr
     diffK4 = x(5) - param.mr;
@@ -74,10 +58,10 @@ end
 
 psi = zeros(1,5);
 
-psi(1) = - rho * (beta1 * xw   + beta3 * x(3));
-psi(2) = - rho * (beta1 * x(2) + beta3 * x(4));
-psi(3) = - rho * (beta2 * x(3) + beta3 * xw);
-psi(4) = - rho * (beta2 * x(4) + beta3 * x(2));
+psi(1) =  - rho * ( beta1 * xm + beta3 * um);
+psi(2) =  - rho * ( beta1 * ym + beta3 * vm);
+psi(3) =  - rho * ( beta2 * um + beta3 * xm);
+psi(4) =  - rho * ( beta2 * vm + beta3 * ym);
 psi(5) = param.K1 - rho * diffK4;
 
 x = [x psi 0 0];

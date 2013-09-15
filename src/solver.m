@@ -1,15 +1,17 @@
-function [ x, psi, grad ] = solver(zd, param, var, rho)
+function [ t, x, Q, psi, grad ] = solver(zd, param, var, rho)
 % solver modelu rozwiazujacy rownania w przod i wstecz z zapamietywaniem
 
 x = zeros(var.iter,5);
 us = zeros(2,1);
 u = zd(3:end);
 
-x(1,1) = param.rE * cos(zd(1)) - param.mu;
+x(1,1) = param.rE * cos(zd(1));
 x(1,2) = param.rE * sin(zd(1));
 x(1,3) = - (param.VE + zd(2)) * sin(zd(1));
 x(1,4) = (param.VE + zd(2)) * cos(zd(1));
 x(1,5) = param.m0 * exp(param.C2 * zd(2));
+
+t = zeros(var.iter,1);
 
 for j = 1:var.ldtau
     jj = var.ldtau + j;
@@ -20,43 +22,63 @@ for j = 1:var.ldtau
     h3j = var.h3(j);
     h6j = var.h6(j);
     for i = var.cn(j):var.cn(j+1)-1
-        xc = x(i,:);
-        dx1 = rhs(xc, us, param);
+        tc = t(i,:);        
+        xc = x(i,:);      
+        dx1 = rhs(tc, xc, us, param);
+        targ = tc + h2j;
         farg = xc + h2j * dx1;
-        dx2 = rhs(farg, us, param);
+        dx2 = rhs(targ, farg, us, param);
         farg = xc + h2j * dx2;
-        dx3 = rhs(farg, us, param);
+        dx3 = rhs(targ, farg, us, param);
+        targ = tc + hj;
         farg = xc + hj * dx3;
-        dx4 = rhs(farg, us, param);
+        dx4 = rhs(targ, farg, us, param);
         x(i+1,:) = xc + h3j * (dx2 + dx3) + h6j * (dx1 + dx4);
+        t(i+1,:) = tc + hj; 
     end
 end
 
 xT = x(var.iter,:);
+tT = t(var.iter);
 
-xw = xT(1) - param.restmu;
+xm = xT(1) -               param.D * cos(param.omega * tT);
+ym = xT(2) -               param.D * sin(param.omega * tT);
+um = xT(3) + param.omega * param.D * sin(param.omega * tT);
+vm = xT(4) - param.omega * param.D * cos(param.omega * tT);
 
-xw2 = xw * xw;
-yw2 = xT(2) * xT(2);
-uw2 = xT(3) * xT(3);
-vw2 = xT(4) * xT(4);
+xm2 = xm * xm;
+ym2 = ym * ym;
+um2 = um * um;
+vm2 = vm * vm;
 
-beta1 = xw2 + yw2 - param.rM2;
-beta2 = uw2 + vw2 - param.VM2;
-beta3 = xw * xT(3) + xT(2) * xT(4);
+beta1 = xm2 + ym2 - param.rM2;
+beta2 = um2 + vm2 - param.VM2;
+beta3 = xm * um + ym * vm;
 
-if xT(5) <= param.mr
-    diffK4 = xT(5) - param.mr;
+k1 = 0.25 * beta1 * beta1;
+k2 = 0.25 * beta2 * beta2;
+k3 = 0.5 * beta3 * beta3;
+if x(5) < param.mr
+    k4 = 0.5 * (x(5) - param.mr)^2;
+else
+    k4 = 0;
+end
+
+kara = k1 + k2 + k3 + k4;
+Q = - param.K1 * x(5) + param.K2 * var.tf + rho * kara;
+
+if x(5) <= param.mr
+    diffK4 = x(5) - param.mr;
 else
     diffK4 = 0;
 end
 
 psiT = zeros(1,5);
 
-psiT(1) = - rho * (beta1 * xw   + beta3 * xT(3));
-psiT(2) = - rho * (beta1 * xT(2) + beta3 * xT(4));
-psiT(3) = - rho * (beta2 * xT(3) + beta3 * xw);
-psiT(4) = - rho * (beta2 * xT(4) + beta3 * xT(2));
+psiT(1) = - rho * ( beta1 * xm + beta3 * um);
+psiT(2) = - rho * ( beta1 * ym + beta3 * vm);
+psiT(3) = - rho * ( beta2 * um + beta3 * xm);
+psiT(4) = - rho * ( beta2 * vm + beta3 * ym);
 psiT(5) = param.K1 - rho * diffK4;
 
 x = [x zeros(var.iter, 7)];
@@ -72,14 +94,17 @@ for j = var.ldtau:-1:1
     h3j = var.h3(j);
     h6j = var.h6(j);
     for i = (var.cn(j+1)-1):-1:var.cn(j)
+        tc = t(i+1,:);     
         xc = x(i+1,:);
-        dx1 = rhsPsi(xc, us, param);
+        dx1 = rhsPsi(tc, xc, us, param);
+        targ = tc - h2j;
         farg = xc - h2j * dx1;
-        dx2 = rhsPsi(farg, us, param);
+        dx2 = rhsPsi(targ, farg, us, param);
         farg = xc - h2j * dx2;
-        dx3 = rhsPsi(farg, us, param);
+        dx3 = rhsPsi(targ, farg, us, param);
+        targ = tc - hj;
         farg = xc - hj * dx3;
-        dx4 = rhsPsi(farg, us, param);
+        dx4 = rhsPsi(targ, farg, us, param);
         x(i,:) = xc - h3j * (dx2 + dx3) - h6j * (dx1 + dx4);
     end
     gradU(j) = x(i,11);
@@ -100,6 +125,6 @@ grad(1) = - x(1,6) * dx1theta - x(1,7) * dx2theta - x(1,8) * dx3theta - x(1,9) *
 grad(2) = - x(1,8) * dx3dV - x(1,9) * dx4dV - x(1,10) * dx5dV;
 grad(3:end) = gradU;
 
-psi = x(:,6:12);
+psi = x(:,6:10);
 x = x(:,1:5);
 end
