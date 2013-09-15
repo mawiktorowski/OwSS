@@ -4,12 +4,12 @@ addpath('src');
 
 close all;
 clear all;
-format long;
+format long e;
 
 disp('Test:');
-disp('1 - poprawnoœci modelu');
-disp('2 - poprawnoœci wyliczania Hamiltonianu');
-disp('3 - poprawnoœci wyliczania Psi');
+disp('1 - poprawnoœci modelu (obrót wokó³ Ziemi przy przy braku sterowania)');
+disp('2 - poprawnoœci wyliczania równañ sprzê¿onych (równania sprzê¿one)');
+disp('3 - poprawnoœci wyliczania równañ sprzê¿onych (równania sprzê¿one z warunkami koñcowymi)');
 disp('4 - poprawnoœci wyliczania gradientu');
 n = input('Wybierz test: ');
 
@@ -19,9 +19,8 @@ if n == 1
     [param, ~] = parametry();
     
     thetaRad = 230 * 2 * pi / 360;
-    dVE = 0.3;
+    dVE = 0;
     u = [0; 0; 0; 0; 0; 0];
-    %u = [0.2; 0.2; 0.2; 0; 0; 0];
     
     zd = [thetaRad; dVE; u];
     T = 10;
