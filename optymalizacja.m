@@ -168,8 +168,8 @@ while true
             step = 9;
         case 9
             var = obliczenia(param.h0, tau);
-            [ x, Q, ~, ~] = solver(zdopt, param, var, 0);
-            wizualizacja(x);
+            [ t, x, Q, ~, ~] = solver(zdopt, param, var, 0);
+            wizualizacja(t, x, param);
             wyniki = [Qhist; Thist];
             [ ~, ind ] = sort(wyniki(2, :));
             wyniki = wyniki(:, ind);

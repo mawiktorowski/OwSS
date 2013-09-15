@@ -30,19 +30,20 @@ if n == 1
     
     var = obliczenia(param.h0, tau);
     
-    [ x, ~, ~, ~ ] = solver(zd, param, var, rho);
-    wizualizacja(x);
+    [ t, x, ~, ~, ~ ] = solver(zd, param, var, rho);
+    wizualizacja(t, x, param);
 elseif n == 2
     disp('testH');
     [param, ~] = parametry();
     
-    x0 = [2 2 1 1 1 1 1 1 1];
-    psi0 = [1 1 1 1 1 1 1 1 1];
+    x0 = [1 1 1 1 1];
+    psi0 = [1 1 1 1 1];
     u = [1;1];
+    t = 0;
     
     ep=1e-6;
     
-    [ dH, psi ] = testH(x0, psi0, u, param, ep);
+    [ dH, psi ] = testH(t, x0, psi0, u, param, ep);
     
     disp('Porównanie');
     disp ([dH, psi]);
@@ -52,7 +53,7 @@ elseif n == 3
     disp('testPsi');
     [param, ~] = parametry();
     
-    x0 = [2 2 1 1 1 1 1 1 1];
+    x0 = [1 1 1 1 1];
     u = [0; 0; 0; 0];
     h0 = param.h0;
     T = 1;

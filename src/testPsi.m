@@ -1,10 +1,10 @@
 function [ dQ, H ] = testPsi(x0, u, param, var, ep, rho)
 % sprawdzenie poprawnosci rozwiazywania rownan sprzezonych
 
-dQ = zeros(9,1);
+dQ = zeros(5,1);
 
 Q0 = testPsiKoszt(x0);
-for m=1:9
+for m=1:5
     x0tmp = x0;
     x0tmp(m) = x0(m)+ep;
     dQ(m) = testPsiKoszt(x0tmp);
@@ -19,6 +19,7 @@ H = testPsiSolver(x0);
         
         us = zeros(2,1);
         x = arg;
+        t = 0;
         
         for j = 1:var.ldtau
             jj = var.ldtau + j;
@@ -29,21 +30,24 @@ H = testPsiSolver(x0);
             h3j = var.h3(j);
             h6j = var.h6(j);
             for i = var.cn(j):var.cn(j+1)-1
-                dx1 = rhs(x, us, param);
+                dx1 = rhs(t, x, us, param);
+                targ = t + h2j;
                 farg = x + h2j * dx1;
-                dx2 = rhs(farg, us, param);
+                dx2 = rhs(targ, farg, us, param);
                 farg = x + h2j * dx2;
-                dx3 = rhs(farg, us, param);
+                dx3 = rhs(targ, farg, us, param);
+                targ = t + hj;
                 farg = x + hj * dx3;
-                dx4 = rhs(farg, us, param);
+                dx4 = rhs(targ, farg, us, param);
                 x = x + h3j * (dx2 + dx3) + h6j * (dx1 + dx4);
+                t = t + hj;
             end
         end
 
-        xm = x(3) - x(1);
-        ym = x(4) - x(2);
-        um = x(7) - x(5);
-        vm = x(8) - x(6);
+        xm = x(1) -               param.D * cos(param.omega * t);
+        ym = x(2) -               param.D * sin(param.omega * t);
+        um = x(3) + param.omega * param.D * sin(param.omega * t);
+        vm = x(4) - param.omega * param.D * cos(param.omega * t);
         
         xm2 = xm * xm;
         ym2 = ym * ym;
@@ -57,14 +61,14 @@ H = testPsiSolver(x0);
         k1 = 0.25 * beta1 * beta1;
         k2 = 0.25 * beta2 * beta2;
         k3 = 0.5 * beta3 * beta3;
-        if x(9) < param.mr
-            k4 = 0.5 * (x(9) - param.mr)^2;
+        if x(5) < param.mr
+            k4 = 0.5 * (x(5) - param.mr)^2;
         else
             k4 = 0;
         end
         
         kara = k1 + k2 + k3 + k4;
-        Q = - param.K1 * x(9) + param.K2 * var.tf + rho * kara;
+        Q = - param.K1 * x(5) + param.K2 * var.tf + rho * kara;
         
     end
 
@@ -73,6 +77,7 @@ H = testPsiSolver(x0);
         
         us = zeros(2,1);
         x = arg;
+        t = 0;
         
         for j = 1:var.ldtau
             jj = var.ldtau + j;
@@ -83,21 +88,24 @@ H = testPsiSolver(x0);
             h3j = var.h3(j);
             h6j = var.h6(j);
             for i = var.cn(j):var.cn(j+1)-1
-                dx1 = rhs(x, us, param);
+                dx1 = rhs(t, x, us, param);
+                targ = t + h2j;
                 farg = x + h2j * dx1;
-                dx2 = rhs(farg, us, param);
+                dx2 = rhs(targ, farg, us, param);
                 farg = x + h2j * dx2;
-                dx3 = rhs(farg, us, param);
+                dx3 = rhs(targ, farg, us, param);
                 farg = x + hj * dx3;
-                dx4 = rhs(farg, us, param);
+                targ = t + hj;
+                dx4 = rhs(targ, farg, us, param);
                 x = x + h3j * (dx2 + dx3) + h6j * (dx1 + dx4);
+                t = t + hj;
             end
         end
         
-        xm = x(3) - x(1);
-        ym = x(4) - x(2);
-        um = x(7) - x(5);
-        vm = x(8) - x(6);
+        xm = x(1) -               param.D * cos(param.omega * t);
+        ym = x(2) -               param.D * sin(param.omega * t);
+        um = x(3) + param.omega * param.D * sin(param.omega * t);
+        vm = x(4) - param.omega * param.D * cos(param.omega * t);
         
         xm2 = xm * xm;
         ym2 = ym * ym;
@@ -108,23 +116,19 @@ H = testPsiSolver(x0);
         beta2 = um2 + vm2 - param.VM2;
         beta3 = xm * um + ym * vm;
         
-        if x(9) <= param.mr
-            diffK4 = x(9) - param.mr;
+        if x(5) <= param.mr
+            diffK4 = x(5) - param.mr;
         else
             diffK4 = 0;
         end
         
-        psi = zeros(1,9);
+        psi = zeros(1,5);
         
-        psi(1) =   rho * ( beta1 * xm + beta3 * um);
-        psi(2) =   rho * ( beta1 * ym + beta3 * vm);
-        psi(3) = - rho * ( beta1 * xm + beta3 * um);
-        psi(4) = - rho * ( beta1 * ym + beta3 * vm);
-        psi(5) =   rho * ( beta2 * um + beta3 * xm);
-        psi(6) =   rho * ( beta2 * vm + beta3 * ym);
-        psi(7) = - rho * ( beta2 * um + beta3 * xm);
-        psi(8) = - rho * ( beta2 * vm + beta3 * ym);
-        psi(9) = param.K1 - rho * diffK4;
+        psi(1) =  - rho * ( beta1 * xm + beta3 * um);
+        psi(2) =  - rho * ( beta1 * ym + beta3 * vm);
+        psi(3) =  - rho * ( beta2 * um + beta3 * xm);
+        psi(4) =  - rho * ( beta2 * vm + beta3 * ym);
+        psi(5) = param.K1 - rho * diffK4;
         
         x = [x psi 0 0];
         
@@ -137,18 +141,21 @@ H = testPsiSolver(x0);
             h3j = var.h3(j);
             h6j = var.h6(j);
             for i = (var.cn(j+1)-1):-1:var.cn(j)
-                dx1 = rhsPsi(x, us, param);
+                dx1 = rhsPsi(t, x, us, param);
+                targ = t - h2j;
                 farg = x - h2j * dx1;
-                dx2 = rhsPsi(farg, us, param);
+                dx2 = rhsPsi(targ, farg, us, param);
                 farg = x - h2j * dx2;
-                dx3 = rhsPsi(farg, us, param);
+                dx3 = rhsPsi(targ, farg, us, param);
+                targ = t - hj;
                 farg = x - hj * dx3;
-                dx4 = rhsPsi(farg, us, param);
+                dx4 = rhsPsi(targ, farg, us, param);
                 x = x - h3j * (dx2 + dx3) - h6j * (dx1 + dx4);
+                t = t - hj;
             end
         end
         
-        H = -x(10:18)';
+        H = -x(6:10)';
     end
 
 end
